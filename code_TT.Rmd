@@ -55,3 +55,28 @@ p
 ggsave(p, filename = 'WineRanking.jpeg', device = 'jpeg', path = '/Users/s.chauquet/Documents/DataScience/TidyTuesday')
 ```
 
+04/06/19:
+Ramen Rating
+
+```{r}
+ramen <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-04/ramen_ratings.csv")
+country_tp = ramen %>% group_by(country) %>% summarise(n=n()) %>% filter(n>50) %>% pull(country)
+
+ramen_tp = ramen %>% group_by(country, style) %>% summarise(n=n(), rating = mean(stars, na.rm = T)) %>% filter(country %in% country_tp, rating > 3.3, n>10)
+
+order = ramen %>% group_by(country) %>% summarise(n = n(), rating= mean(stars, na.rm=T)) %>% filter(n>50) %>% arrange(rating)
+
+
+p = ggplot(ramen_tp, aes(y=factor(country, levels = order$country), x=rating)) +
+  geom_point(aes(shape=style, color = country), size = 4) +
+  xlab('Ranking') + ylab('') + labs(title = "What and where are the best Ramen?",
+       caption = "The Ramen Rater") +
+  scale_shape_discrete('Kind of Ramen') +
+  scale_color_discrete(guide = F) +
+  scale_x_continuous(breaks = seq(3.2, 4.3, 0.1)) +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(panel.grid.major.y = element_line(colour = "black"))
+
+ggsave(p, filename = 'RamenRanking.jpeg', device = 'jpeg', path = '/Users/s.chauquet/Documents/DataScience/TidyTuesday')
+```
